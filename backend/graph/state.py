@@ -1,32 +1,27 @@
-from typing import TypedDict, Optional
+from typing import Optional, TypedDict
+
+from schemas.requirement_schema import RequirementAnalysis
+from schemas.supervisor_schema import SupervisorDecision
 
 
 class ProjectState(TypedDict):
     """
-    Shared state passed between all LangGraph agents.
-
-    Every agent receives this state,
-    updates it,
-    and returns the updated version.
+    Shared state passed between all LangGraph nodes.
     """
 
-    # User Input
     user_input: str
 
-    # Requirement Agent Output
-    requirements: Optional[dict]
+    requirements: Optional[RequirementAnalysis]
 
-    # Research Agent Output
     research: Optional[dict]
 
-    # Architect Agent Output
     architecture: Optional[dict]
 
-    # Final Supervisor Output
     final_report: Optional[dict]
 
-    # Workflow Status
-    current_agent: Optional[str]
+    supervisor_decision: Optional[SupervisorDecision]
+
+    current_node: Optional[str]
 
     status: Optional[str]
 
