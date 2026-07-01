@@ -1,9 +1,11 @@
+
 from graph.state import ProjectState
 
 from prompts.supervisor_prompt import get_supervisor_prompt
 from schemas.supervisor_schema import SupervisorDecision
 from services.llm_service import llm_service
 from utils.state_formatter import format_project_state
+
 
 
 def supervisor_node(state: ProjectState) -> ProjectState:
@@ -13,7 +15,7 @@ def supervisor_node(state: ProjectState) -> ProjectState:
     Responsible for deciding which agent
     should execute next.
     """
-
+    
     # Format state for the LLM
     formatted_state = format_project_state(state)
 
@@ -26,6 +28,7 @@ def supervisor_node(state: ProjectState) -> ProjectState:
     )
 
     # Make decision
+
     decision = structured_llm.invoke(prompt)
 
     # Update shared state
@@ -34,3 +37,4 @@ def supervisor_node(state: ProjectState) -> ProjectState:
     state["status"] = "Decision Completed"
 
     return state
+    

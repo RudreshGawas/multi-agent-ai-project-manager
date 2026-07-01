@@ -26,8 +26,8 @@ Research:
 Architecture:
 {"✅ Completed" if state.get("architecture") else "❌ Missing"}
 
-Final Report:
-{"✅ Completed" if state.get("final_report") else "❌ Missing"}
+Documentation:
+{"✅ Completed" if state.get("documentation") else "❌ Missing"}
 
 Current Node:
 {state.get("current_node", "None")}

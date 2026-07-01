@@ -1,3 +1,4 @@
+
 from graph.state import ProjectState
 from prompts.requirement_prompt import get_requirement_prompt
 from schemas.requirement_schema import RequirementAnalysis
@@ -8,7 +9,7 @@ def requirement_node(state: ProjectState) -> ProjectState:
     """
     LangGraph node responsible for generating project requirements.
     """
-
+    
     structured_llm = llm_service.get_structured_llm(
         RequirementAnalysis
     )
@@ -24,3 +25,4 @@ def requirement_node(state: ProjectState) -> ProjectState:
     state["status"] = "Completed"
 
     return state
+    print("Requirement Agent Finished") 

@@ -1,6 +1,10 @@
-from typing import Optional, TypedDict
+from typing import TypedDict
 
 from schemas.requirement_schema import RequirementAnalysis
+from schemas.research_schema import ResearchAnalysis
+from schemas.architect_schema import ArchitectureDesign
+from schemas.sprint_schema import SprintPlan
+from schemas.documentation_schema import Documentation
 from schemas.supervisor_schema import SupervisorDecision
 
 
@@ -9,20 +13,20 @@ class ProjectState(TypedDict):
     Shared state passed between all LangGraph nodes.
     """
 
+    # User Input
     user_input: str
 
-    requirements: Optional[RequirementAnalysis]
+    # Agent Outputs
+    requirements: RequirementAnalysis | None
+    research: ResearchAnalysis | None
+    architecture: ArchitectureDesign | None
+    sprint: SprintPlan | None
+    documentation: Documentation | None
 
-    research: Optional[dict]
+    # Supervisor
+    supervisor_decision: SupervisorDecision | None
 
-    architecture: Optional[dict]
-
-    final_report: Optional[dict]
-
-    supervisor_decision: Optional[SupervisorDecision]
-
-    current_node: Optional[str]
-
-    status: Optional[str]
-
-    error: Optional[str]
+    # Workflow Metadata
+    current_node: str | None
+    status: str | None
+    error: str | None

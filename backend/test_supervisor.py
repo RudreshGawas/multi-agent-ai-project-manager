@@ -1,24 +1,40 @@
-from agents.supervisor.node import supervisor_node
+from services.llm_service import llm_service
+from schemas.supervisor_schema import SupervisorDecision
+from prompts.supervisor_prompt import get_supervisor_prompt
 
-state = {
-    "user_input": """
+formatted_state = """
+Project Idea:
 Build an AI-powered Physiotherapy Platform
-where patients perform exercises using pose estimation
-and therapists can monitor progress remotely.
-""",
 
-    "requirements": None,
-    "research": None,
-    "architecture": None,
-    "final_report": None,
+Requirements:
+❌ Missing
 
-    "supervisor_decision": None,
+Research:
+❌ Missing
 
-    "current_node": None,
-    "status": None,
-    "error": None,
-}
+Architecture:
+❌ Missing
 
-updated_state = supervisor_node(state)
+Documentation:
+❌ Missing
 
-print(updated_state["supervisor_decision"])
+Current Node:
+None
+
+Status:
+Not Started
+"""
+
+prompt = get_supervisor_prompt(formatted_state)
+
+print("=" * 80)
+print(prompt)
+print("=" * 80)
+
+structured_llm = llm_service.get_structured_llm(SupervisorDecision)
+
+print("Calling Supervisor...")
+
+response = structured_llm.invoke(prompt)
+
+print(response)

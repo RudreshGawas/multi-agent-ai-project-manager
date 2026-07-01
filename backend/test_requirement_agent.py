@@ -1,4 +1,4 @@
-from agents.requirement.agent import RequirementAgent
+from backend.agents.requirement.node import RequirementAgent
 
 agent = RequirementAgent()
 
