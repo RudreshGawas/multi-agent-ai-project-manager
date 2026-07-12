@@ -1,27 +1,50 @@
+# backend/test_workflow.py
+
 from graph.workflow import graph
 
-initial_state = {
-    "user_input": """
+def run_test():
+    initial_state = {
+        "user_input": """
 Build an AI-powered Physiotherapy Platform
 where patients perform exercises using pose estimation
 and therapists can monitor patient progress remotely.
 """,
+        "requirements": None,
+        "research": None,
+        "architecture": None,
+        "sprint": None,
+        "documentation": None,
+        "supervisor_decision": None,
+        "current_node": None,
+        "status": None,
+        "error": None,
+    }
 
-    "requirements": None,
-    "research": None,
-    "architecture": None,
-    "final_report": None,
+    print("Starting workflow run...\n")
+    result = graph.invoke(initial_state)
 
-    "supervisor_decision": None,
+    print("\n========== FINAL STATE ==========\n")
+    for key, value in result.items():
+        print(f"--- {key} ---")
+        print(value)
+        print()
 
-    "current_node": None,
-    "status": None,
-    "error": None,
-}
+    print("========== SANITY CHECKS ==========")
+    checks = {
+        "requirements populated":  result.get("requirements") is not None,
+        "research populated":     result.get("research") is not None,
+        "architecture populated": result.get("architecture") is not None,
+        "sprint populated":       result.get("sprint") is not None,
+        "documentation populated":result.get("documentation") is not None,
+        "no error recorded":      result.get("error") is None,
+        "ended cleanly":          result.get("supervisor_decision") is not None
+                                   and result["supervisor_decision"].next_agent == "end",
+    }
 
-result = graph.invoke(initial_state)
+    for label, passed in checks.items():
+        status = "PASS" if passed else "FAIL"
+        print(f"[{status}] {label}")
 
-print("\n========== FINAL STATE ==========\n")
 
-for key, value in result.items():
-    print(f"{key}:\n{value}\n")
+if __name__ == "__main__":
+    run_test()

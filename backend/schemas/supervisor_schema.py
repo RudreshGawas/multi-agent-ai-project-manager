@@ -12,13 +12,13 @@ class SupervisorDecision(BaseModel):
         "requirement",
         "research",
         "architect",
-        "documentation",
         "sprint",
+        "documentation",
         "end",
-        "wait"
+        "wait",
     ] = Field(
         ...,
-        description="Next agent that should execute."
+        description="Next agent that should execute.",
     )
 
     reason: str = Field(

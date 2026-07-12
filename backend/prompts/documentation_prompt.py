@@ -1,17 +1,32 @@
-def get_documentation_prompt(project_description: str) -> str:
+from utils.formatters import (
+    format_requirements,
+    format_research,
+    format_architecture,
+    format_sprint,
+)
+
+
+def get_documentation_prompt(requirements, research, architecture, sprint) -> str:
     return f"""
-You are a Technical Documentation Expert.
+You are a Technical Documentation Expert producing final documentation for this project,
+based entirely on the decisions already made in previous phases below.
 
-Generate documentation for the following project.
+## Requirements
+{format_requirements(requirements)}
 
-Project:
-{project_description}
+## Research Decisions
+{format_research(research)}
 
-Return:
+## Architecture
+{format_architecture(architecture)}
 
-1. Software Requirement Specification
+## Sprint Plan
+{format_sprint(sprint)}
+
+Produce:
+1. Software Requirement Specification (SRS)
 2. Project Proposal
 3. README
 
-Return structured output only.
+Return ONLY the structured output matching the provided schema.
 """
