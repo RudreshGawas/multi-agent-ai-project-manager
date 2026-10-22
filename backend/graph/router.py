@@ -4,9 +4,11 @@ from graph.state import ProjectState
 
 def route_next_agent(state: ProjectState):
     """
-    Deterministic router for the current pipeline (Requirement -> Research -> End).
-    No LLM call needed here — this logic doesn't require judgment yet.
+    Route to the next stage selected by the supervisor.
     """
+
+    if state.get("error") is not None:
+        return END
 
     decision = state.get("supervisor_decision")
 
@@ -23,14 +25,17 @@ def route_next_agent(state: ProjectState):
         # For now, end the run and let the caller check `requires_user_input`.
         return END
 
-    if next_agent in ("requirement", "research", "architect", "sprint", "documentation"):
+    if next_agent in (
+        "requirement",
+        "research",
+        "architect",
+        "sprint",
+        "documentation",
+    ):
         return next_agent
 
-    # Supervisor picked a real pipeline stage that isn't wired into the graph yet
-    # (architect / sprint / documentation). This is OUR bug, not a user error —
-    # fail loudly so we notice it immediately during dev, not silently in prod.
     raise NotImplementedError(
-        f"'{next_agent}' was selected by the Supervisor but is not yet "
-        f"registered as a graph node."
+        f"'{next_agent}' was selected by the Supervisor but is not registered "
+        "as a graph node."
     )
     

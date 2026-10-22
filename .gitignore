@@ -19,6 +19,7 @@ env/
 # ===========================
 .env
 backend/.env
+backend/.env.local
 frontend/.env.local
 
 # ===========================

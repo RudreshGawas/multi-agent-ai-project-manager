@@ -14,7 +14,7 @@ class LLMService:
 
     def __init__(self):
         self.model = ChatGoogleGenerativeAI(
-            model=os.getenv("MODEL_NAME", "gemini-2.5-flash"),
+            model=os.getenv("MODEL_NAME", "gemini-3.8-flash"),
             google_api_key=os.getenv("GOOGLE_API_KEY"),
             temperature=float(os.getenv("TEMPERATURE", "0.2")),
         )

@@ -1,6 +1,6 @@
 # 🤖 Multi-Agent AI Project Manager
 
-An intelligent **Multi-Agent AI Project Manager** built using **LangGraph**, **Google Gemini**, and **Pydantic**. The system orchestrates multiple specialized AI agents that collaborate to transform a simple project idea into a complete software development plan.
+An in-progress **Multi-Agent AI Project Manager** built using **FastAPI**, **LangGraph**, **Google Gemini**, and **Pydantic**. Its backend API transforms a project idea into structured requirements, technology recommendations, architecture, sprint planning, and project documentation.
 
 Instead of relying on a single LLM prompt, this project simulates a real software engineering team where each AI agent has a dedicated responsibility and communicates through structured outputs.
 
@@ -8,16 +8,19 @@ Instead of relying on a single LLM prompt, this project simulates a real softwar
 
 # 🚀 Features
 
-* 🧠 Supervisor Agent for intelligent workflow orchestration
+* 🧠 Workflow supervisor for routing between project-planning stages
+* 💬 Optional, project-specific scope questions before planning
 * 📋 Requirement Analysis Agent
 * 🔬 Research & Technology Recommendation Agent
-* 🏗️ Architecture Design Agent *(In Progress)*
-* 📅 Sprint Planning Agent *(In Progress)*
-* 📖 Documentation Generation Agent *(In Progress)*
+* 🏗️ Architecture Design Agent
+* 📅 Sprint Planning Agent
+* 📖 Documentation Generation Agent
 * 🔄 Dynamic routing using LangGraph
 * 📦 Structured outputs using Pydantic
 * 🧩 Context sharing between agents
-* ⚡ Modular and scalable architecture
+* ⚡ Modular backend API architecture
+* 📡 Live per-agent progress updates while a plan is generated
+* 📄 Downloadable PDF and JSON plans
 
 ---
 
@@ -69,9 +72,11 @@ Documentation Agent                 │
 
 # 🤖 AI Agents
 
-## 1. Supervisor Agent
+## 1. Workflow Supervisor
 
-The Supervisor Agent acts as the workflow orchestrator.
+The deterministic supervisor selects the next incomplete workflow stage from
+the shared project state. It is workflow logic, not a separate Gemini-powered
+agent.
 
 Responsibilities:
 
@@ -125,21 +130,24 @@ ResearchAnalysis
 
 ---
 
-## 4. Architecture Agent *(Upcoming)*
+## 4. Architecture Agent
 
-Will design the complete high-level software architecture using the project requirements and research recommendations.
+Uses the requirements and technology recommendations to generate a system architecture, tech stack, database design, and API endpoint list.
 
----
+## 5. Sprint Agent
 
-## 5. Sprint Agent *(Upcoming)*
+Uses the requirements and architecture to generate a three-sprint task plan and milestones.
 
-Will generate Agile sprint plans, milestones, tasks, and timelines.
+## 6. Documentation Agent
 
----
+Uses the previous workflow outputs to generate an SRS, project proposal, and README.
 
-## 6. Documentation Agent *(Upcoming)*
+## Scope Clarification
 
-Will automatically generate complete project documentation.
+Before planning, an optional Gemini-powered clarification endpoint can ask up
+to three project-specific questions. The user can answer, enter a custom
+answer, or skip the questions. Confirmed answers are passed into the
+requirements stage so downstream agents share the selected scope.
 
 ---
 
@@ -147,17 +155,27 @@ Will automatically generate complete project documentation.
 
 ## AI
 
-* Google Gemini
-* LangGraph
-* LangChain
+* Google Gemini, called through LangChain's `ChatGoogleGenerativeAI`
+* LangChain structured output with Pydantic schemas
+* LangGraph `StateGraph` for agent orchestration and progress streaming
 
 ## Backend
 
+* FastAPI
 * Python
+
+## Frontend
+
+* Next.js
+* React
 
 ## Data Validation
 
 * Pydantic
+
+## Persistence
+
+* PostgreSQL with JSONB for saved project plans
 
 ## Workflow
 
@@ -245,6 +263,31 @@ Supervisor
 END
 ```
 
+## API
+
+Run the backend from the `backend/` directory:
+
+```bash
+uvicorn main:app --reload
+```
+
+* `GET /health` checks that the API is responding.
+* `POST /api/v1/projects/clarify` accepts `{"project_idea": "..."}` and returns up to three optional, idea-specific scope questions. Clear ideas may return no questions.
+* `POST /api/v1/projects/plan` accepts `{"project_idea": "...", "clarifications": [{"question": "...", "answer": "..."}]}`, persists the generated plan, and returns it with a `project_id` and creation timestamp. `clarifications` is optional; project ideas must contain 1–10,000 non-whitespace characters.
+* `POST /api/v1/projects/plan/stream` accepts the same request and streams agent progress followed by the completed plan.
+* `GET /api/v1/projects?limit=20` lists recent project ideas and IDs; `limit` can range from 1 to 100.
+* `GET /api/v1/projects/{project_id}` retrieves a saved plan.
+* Interactive API documentation is available at `/docs`.
+
+For an explanation of each LangGraph node and agent, see
+[docs/agents.md](docs/agents.md).
+
+Project persistence requires a running PostgreSQL server and an existing database. Set `DATABASE_URL` in `backend/.env`; the `projects` table is created automatically on first read or write.
+
+For local development, the Next.js frontend runs from `frontend/` with `npm run dev`. Copy `frontend/.env.example` to `frontend/.env.local` to configure the API URL. Configure `FRONTEND_ORIGINS` in `backend/.env` to include the frontend origin if it differs from `http://localhost:3000`.
+
+To start the complete local stack with Docker Compose, copy `.env.example` to `.env`, set a URL-safe PostgreSQL password, configure `backend/.env` as above, and run `docker compose up --build` from the repository root. Open `http://localhost:3000`; the API is available at `http://localhost:8000`. Compose defaults are for local development only; do not use them in a public deployment.
+
 ---
 
 # 🧩 Architecture Principles
@@ -285,27 +328,25 @@ ProjectState
 
 # 📌 Current Progress
 
-### ✅ Completed
+### ✅ API and workflow implemented; mocked tests pass
 
-* Supervisor Agent
-* Requirement Agent
-* Research Agent
-* Context Builder
-* Workflow Routing
-* State Management
-* Structured Output Models
+* Supervisor Agent and workflow routing
+* Requirement, research, architecture, sprint planning, and documentation agent nodes
+* Shared project state, context builder, prompts, and structured output models
+* Gemini structured-output service and optional scope clarification endpoint
+* FastAPI health check, streaming and non-streaming plan generation, recent project listing, and saved-plan retrieval
+* PostgreSQL persistence for generated project plans
+* Next.js interface with per-agent progress, expandable output cards, PDF/JSON downloads, and saved-plan history
+* Docker Compose setup for running the frontend, API, and PostgreSQL locally
 
-### 🚧 In Progress
+Automated tests verify API input handling, PostgreSQL repository behavior with mocked database connections, saved-plan retrieval, and the complete workflow with mocked LLM responses. Live Gemini calls and integration against a running PostgreSQL server are not covered by those tests. The frontend and API integration are implemented; the Docker stack has not been run in this environment.
 
-* Architecture Agent
-* Sprint Planning Agent
-* Documentation Agent
+GitHub Actions runs the backend unit suite, frontend production build, and Docker Compose configuration validation on pushes and pull requests. Database and Gemini tests are mocked, so CI does not require external services or credentials.
 
 ### 🔮 Planned
 
 * Memory System
-* Vector Database
-* Retrieval-Augmented Generation (RAG)
+* Vector Database and Retrieval-Augmented Generation (RAG) — not implemented yet
 * Human-in-the-Loop Approval
 * Multi-LLM Support
 * Tool Calling
@@ -348,10 +389,10 @@ The goal is to simulate a real software engineering team using AI.
 Clone the repository:
 
 ```bash
-git clone https://github.com/gamingdaddy8/multi-agent-ai-project-manager.git
+git clone https://github.com/RudreshGawas/multi-agent-ai-project-manager.git
 ```
 
-Navigate into the project:
+Navigate into the repository:
 
 ```bash
 cd multi-agent-ai-project-manager
@@ -371,19 +412,30 @@ Windows:
 venv\Scripts\activate
 ```
 
-Install dependencies:
+Install backend dependencies:
 
 ```bash
-pip install -r requirements.txt
+pip install -r backend/requirements.txt
 ```
 
-Create a `.env` file and add your Gemini API key.
+Copy `backend/.env.example` to `backend/.env` and set `GOOGLE_API_KEY` and `DATABASE_URL`. Create the PostgreSQL database named in the URL before starting the API.
 
-Run the project:
+Run the API from the backend directory:
 
 ```bash
-python test_workflow.py
+cd backend
+uvicorn main:app --reload
 ```
+
+In a second terminal, run the frontend:
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Open `http://localhost:3000`.
 
 ---
 

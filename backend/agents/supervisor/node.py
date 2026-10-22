@@ -73,6 +73,19 @@ def _deterministic_decision(state: ProjectState) -> SupervisorDecision | None:
 
 
 def supervisor_node(state: ProjectState) -> ProjectState:
+    if state.get("error") is not None:
+        state["supervisor_decision"] = SupervisorDecision(
+            next_agent="end",
+            reason="Workflow stopped because an agent failed.",
+            confidence=1.0,
+            requires_user_input=False,
+            missing_information=[],
+            workflow_stage="Failed",
+        )
+        state["current_node"] = "Supervisor"
+        state["status"] = "Error"
+        return state
+
     try:
         decision = _deterministic_decision(state)
 

@@ -7,6 +7,12 @@ You are an Agile Project Manager creating a 3-sprint roadmap for this project.
 
 Base every task on the requirements, technology decisions, and architecture below —
 do not invent scope that isn't grounded in them.
+Treat the requirements as the scope boundary. Do not add optional ideas,
+speculative infrastructure, unrequested authentication, AI, notifications,
+analytics, deployment work, or load testing. Prefer a usable end-to-end MVP
+over production-scale work. Keep each sprint to 3-5 concrete, achievable tasks.
+If a capability is marked "Not needed for the MVP", do not schedule it.
+Do not claim that unimplemented or untested milestones are already complete.
 
 ## Requirements
 {format_requirements(requirements)}
