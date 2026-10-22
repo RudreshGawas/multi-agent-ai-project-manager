@@ -13,11 +13,17 @@ class LLMService:
     """
 
     def __init__(self):
-        self.model = ChatGoogleGenerativeAI(
-            model=os.getenv("MODEL_NAME", "gemini-3.8-flash"),
-            google_api_key=os.getenv("GOOGLE_API_KEY"),
-            temperature=float(os.getenv("TEMPERATURE", "0.2")),
-        )
+        self._model: ChatGoogleGenerativeAI | None = None
+
+    @property
+    def model(self) -> ChatGoogleGenerativeAI:
+        if self._model is None:
+            self._model = ChatGoogleGenerativeAI(
+                model=os.getenv("MODEL_NAME", "gemini-3.8-flash"),
+                google_api_key=os.getenv("GOOGLE_API_KEY"),
+                temperature=float(os.getenv("TEMPERATURE", "0.2")),
+            )
+        return self._model
 
     def get_llm(self):
         """
